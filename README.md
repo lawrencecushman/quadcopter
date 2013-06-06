@@ -37,7 +37,6 @@ Appendices
 Parts List
 ----------
 
-[youtube](www.youtube.com)
 I know you came here to read about our software, but if you're interested in the hardware we're using to build the copter, here's our parts list, curated by Andrew Simpson himself:
 
 - [*4x ESC*](http://hobbyking.com/hobbyking/store/uh_viewItem.asp?idProduct=13429) - HobbyKing 30A BlueSeries Brushless Speed Controller
