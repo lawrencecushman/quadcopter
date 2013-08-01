@@ -48,7 +48,7 @@ I know you came here to read about our software, but if you're interested in the
 - [*2x* Breakout Cable](http://hobbyking.com/hobbyking/store/uh_viewItem.asp?idProduct=25482) - HXT 4mm to 3 X 3.5mm bullet Multistar ESC Power Breakout Cable
 - [*2x* Battery Strap](http://hobbyking.com/hobbyking/store/uh_viewItem.asp?idProduct=11736) - Turnigy Battery Strap 330mm
 - [10-axis IMU](http://hobbyking.com/hobbyking/store/uh_viewItem.asp?idProduct=26913) - Inertial Measurement Unit which includes:
- 	* ADXL345 3-Axis Accelerometer [*Spec Sheet*](http://www.analog.com/static/imported-files/data_sheets/ADXL345-EP.pdf)
+ 	* ADXL345 3-Axis Accelerometer [*Spec Sheet*](http://www.analog.com/static/imported-files/data_sheets/ADXL345.pdf)
 	* L3G4200D 3-Axis Gyro [*Spec Sheet*](http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/CD00265057.pdf) 
 	* HMC5583L 3-Axis Magnetometer [*Spec Sheet*](http://www51.honeywell.com/aero/common/documents/myaerospacecatalog-documents/Defense_Brochures-documents/HMC5883L_3-Axis_Digital_Compass_IC.pdf)
 	* BMP085 Barometer&Temp Sensor [*Spec Sheet*](https://www.sparkfun.com/datasheets/Components/General/BST-BMP085-DS000-05.pdf)
