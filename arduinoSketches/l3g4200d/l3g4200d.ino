@@ -1,9 +1,10 @@
 #include <Wire.h>
 
-#define SAD 0x69
+// Slave Address
+#define DEVICE_ADDRESS 0x69
 
-#define WHO_AM_I      0x0F
-#define CTRL_REG1     0x20
+#define WHO_AM_I      0x0F // Holds the address DEVICE_ADDRESS (default 0x69)
+#define CTRL_REG1     0x20 
 #define CTRL_REG2     0x21
 #define CTRL_REG3     0x22
 #define CTRL_REG4     0x23
@@ -41,7 +42,7 @@ void setup(){
 void loop() {
   updateGyroValuesSequentially();
   print_CSV();
-  delay(50);
+  delay(100);
 }
 
 void updateGyroValues(){
@@ -67,11 +68,11 @@ void updateGyroValuesSequentially(){
 
 byte* readSequentialRegisters(byte firstReg, int n){
   byte byteArray[n];
-  Wire.beginTransmission(SAD);
+  Wire.beginTransmission(DEVICE_ADDRESS);
   Wire.write(firstReg | ( 1 << 7 ));
   Wire.endTransmission();
 
-  Wire.requestFrom(SAD,n);
+  Wire.requestFrom(DEVICE_ADDRESS,n);
   while(Wire.available() < n){}
   for (int i=0; i<n; i++){
     byteArray[i] = Wire.read();
@@ -80,28 +81,28 @@ byte* readSequentialRegisters(byte firstReg, int n){
 }
 
 int writeRegister(int reg, byte value) {
-  Wire.beginTransmission(SAD);
+  Wire.beginTransmission(DEVICE_ADDRESS);
   Wire.write(reg);
   Wire.write(value);
   return Wire.endTransmission();
 }
 
 byte readRegister(int reg){
-  Wire.beginTransmission(SAD);
+  Wire.beginTransmission(DEVICE_ADDRESS);
   Wire.write(reg);
   Wire.endTransmission();
   
-  Wire.requestFrom(SAD,1);
+  Wire.requestFrom(DEVICE_ADDRESS,1);
   while(Wire.available() < 1){}
   return Wire.read();
 }
 
 void setupGyro() {
   //            REG#    bit# 76543210
-  writeRegister(CTRL_REG1, 0b01101111);  // default, but with 200Hz bandwidth and 50Hz cut-off freq.
+  writeRegister(CTRL_REG1, 0b00001111);  // default, but with 200Hz bandwidth and 50Hz cut-off freq.
   writeRegister(CTRL_REG2, 0b00000000);  // TODO: Configure this HPF, currently default
   writeRegister(CTRL_REG3, 0b00000000);  // default
-  writeRegister(CTRL_REG4, 0b00110000);  // default, but with 2000dps Full scale, default was 250dps full scale
+  writeRegister(CTRL_REG4, 0b00000000);  // default, but with 2000dps Full scale, default was 250dps full scale
   writeRegister(CTRL_REG5, 0b00000000);  // default
 }
 
