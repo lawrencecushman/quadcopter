@@ -20,7 +20,7 @@
 #define DEVICE_ADDRESS 0x69
 
 /*----------------------------------------------------------------------------*/
-/** REGISTER MAPPING
+/*  REGISTER MAPPING
 /*   The registers are further defined in the datasheet. The names are exactly 
 /*   the same. Addresses with two stars (**) in the comment are used in this
 /*   code. In the case of control registers, ** means they are modified from 
@@ -30,9 +30,9 @@
 #define CTRL_REG1     0x20 // ** Control Register 1
 #define CTRL_REG2     0x21 // Control Register 2
 #define CTRL_REG3     0x22 // Control Register 3
-#define CTRL_REG4     0x23 // Control Register 4
+#define CTRL_REG4     0x23 // ** Control Register 4
 #define CTRL_REG5     0x24 // Control Register 5
-#define REFERENCE_REG 0x25 // Reference ?
+#define REFERENCE_REG 0x25 // Reference
 #define OUT_TEMP      0x26 // Temperature Data
 #define STATUS_REG    0x27 // Contains 8 various status bits
 #define OUT_X_L       0x28 // ** X-Axis LSB
@@ -64,9 +64,9 @@ void setup(){
 }
 
 void loop() {
-  updateGyroValuesWithRepeatedStart(); // setx x, y and z.
+  updateGyroValuesWithRepeatedStart(); // set x, y and z.
   print_CSV();                         // print values in CSV format
-  delay(100);
+  delay(50);
 }
 
 
@@ -113,7 +113,7 @@ void updateGyroValuesWithRepeatedStart(){
 //  firstReg  - the address of the first register to be read.
 //  byteArray - a pointer to the array the read values will be stored to
 //  n         - the size of byteArray
-void readSequentialRegisters(byte firstReg, byte* byteArray, n){
+void readSequentialRegisters(byte firstReg, byte* byteArray, int n){
   Wire.beginTransmission(DEVICE_ADDRESS);
   Wire.write(firstReg | ( 1 << 7 )); // read First Register | Auto-Increment
   Wire.endTransmission();
@@ -124,6 +124,7 @@ void readSequentialRegisters(byte firstReg, byte* byteArray, n){
     byteArray[i] = Wire.read();
   }
 }
+
 
 // Write to Register
 //  Writes a byte to a single register.
@@ -144,6 +145,7 @@ int writeRegister(int reg, byte value) {
   return Wire.endTransmission();
 }
 
+
 // Read Register
 //  Reads data from a single register
 // Arguments:
@@ -160,19 +162,21 @@ byte readRegister(int reg){
   return Wire.read();
 }
 
+
 // Setup Gyro
 //  Sets up the gyros control registers.
 //  To take advantage of this function, toggle the bits based on your needs. The 
 //  default values for each control register are 0b00000000. 
 //  For more information, see pg.29 of the documentation.
 void setupGyro() {
-  //            REG#    bit# 76543210
+  //            REG     bit# 76543210
   writeRegister(CTRL_REG1, 0b00001111);  // default, but with 200Hz bandwidth and 50Hz cut-off freq.
   writeRegister(CTRL_REG2, 0b00000000);  // TODO: Configure this HPF, currently default
   writeRegister(CTRL_REG3, 0b00000000);  // default
   writeRegister(CTRL_REG4, 0b00110000);  // default, but with 2000dps Full scale, default was 250dps full scale
   writeRegister(CTRL_REG5, 0b00000000);  // default
 }
+
 
 // Print CSV
 //  Prints x, y and z in CSV (Comma-Separated Values) format.
