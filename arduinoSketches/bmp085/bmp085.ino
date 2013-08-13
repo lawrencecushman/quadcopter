@@ -77,8 +77,10 @@ void loop() {
   updateBaroValues(&temperature, &pressure); // set pressure and temperature
   Serial.print ("T:");
   Serial.print (temperature);
-  Serial.print ("P:");
+  Serial.print (" P:");
   Serial.println (pressure);
+  
+  delay(80);
 }
 
 void updateBaroValues(int* t, long* p){
@@ -89,12 +91,16 @@ void updateBaroValues(int* t, long* p){
   writeRegister(0xF4,0x2E);
   delay(5);
   int ut = (readRegister(0xF6) << 8) | readRegister(0xF7);
-  
+  Serial.print("UT:");
+  Serial.print(ut);
+
   // Read uncompensated puessure data
   writeRegister(0xF4,0x2E);
   delay(5);
   long up = ((readRegister(0xF6) << 16) | (readRegister(0xF7) << 8) |
                   readRegister(0xF8)) >> (8 - oss);
+  Serial.print(" UP:");
+  Serial.println(up);  
   
   // Calculate true temperature
   x1 = (ut - ac6) * ac5;
