@@ -21,34 +21,23 @@
 #define OUTPUT_REG_L  0xF7 // Data output LSB
 #define OUTPUT_REG_XL 0xF8 // Data output XLSB (used in high-res mode)
 
-//  Calibration Coefficients - The following 22 registers hold the 11 16-bit
-//    coefficients that are specific to your individual chip. The coefficients
+//  Calibration Coefficients - The following hold the 11 16-bit coefficients
+//    that are specific to your individual chip. The coefficients
 //    are used to help calculate pressure and temperature. They need only be 
 //    read once at the beginning of operation
 #define AC_1H   0xAA
-#define AC_1L   0xAB
 #define AC_2H   0xAC
-#define AC_2L   0xAD
 #define AC_3H   0xAE
-#define AC_3L   0xAF
 #define AC_4H   0xB0
-#define AC_4L   0xB1
 #define AC_5H   0xB2
-#define AC_5L   0xB3
 #define AC_6H   0xB4
-#define AC_6L   0xB5
 #define B_1H    0xB6
-#define B_1L    0xB7
 #define B_2H    0xB8
-#define B_2L    0xB9
 #define MB_H    0xBA
-#define MB_L    0xBB
 #define MC_H    0xBC
-#define MC_L    0xBD
 #define MC_H    0xBE
-#define MC_L    0xBF
 
-const unsigned char oss = 3; // I2C slave address for bmp085
+const unsigned char oss = 0; // I2C slave address for bmp085
 
 // Calibration values
 int ac1;
@@ -71,68 +60,69 @@ void setup(){
 }
 
 void loop() {
-  int temperature;
+  unsigned int temperature;
   long pressure;
   
   updateBaroValues(&temperature, &pressure); // set pressure and temperature
-  Serial.print ("T:");
-  Serial.print (temperature);
-  Serial.print (" P:");
-  Serial.println (pressure);
-  
-  delay(80);
+
+  delay(200);
 }
 
-void updateBaroValues(int* t, long* p){
+void updateBaroValues(unsigned int* t, long* p){
   long x1, x2, x3, b3, b5, b6;
   unsigned long b4, b7;
   
   // Read uncompensated temperature value
   writeRegister(0xF4,0x2E);
   delay(5);
-  int ut = (readRegister(0xF6) << 8) | readRegister(0xF7);
-  Serial.print("UT:");
-  Serial.print(ut);
+  unsigned int ut = ((int)readRegister(0xF6) << 8) | readRegister(0xF7);
 
   // Read uncompensated puessure data
   writeRegister(0xF4,0x2E);
-  delay(5);
-  long up = ((readRegister(0xF6) << 16) | (readRegister(0xF7) << 8) |
-                  readRegister(0xF8)) >> (8 - oss);
-  Serial.print(" UP:");
-  Serial.println(up);  
+  delay(10);
+  unsigned long up = (((unsigned long)readRegister(0xF6) << 16) | ((unsigned long)readRegister(0xF7) << 8) |
+                  (unsigned long)readRegister(0xF8)) >> (8 - oss);
+  
   
   // Calculate true temperature
-  x1 = (ut - ac6) * ac5;
-  x1 >>= 15;
+  x1 = (((long)ut - (long)ac6)*(long)ac5) >> 15;
+  x2 = ((long)mc << 11)/(x1 + md);
   b5 = x1 + x2;
-  *t = b5 + 8;
-  *t >>= 4;
+  *t = (b5 + 8)>> 4;
   
   // Calculate true pressure
-  b6 = b5-4000;
-  x1 = (b6 * b6) >> 12;
-  x1 *= b2;
-  x1 >>= 11;
-  x2 = (ac2 * b6) >> 11;
+  x1 = (b2 * (b6 * b6)>>12)>>11;
+  x2 = (ac2 * b6)>>11;
   x3 = x1 + x2;
-  b3 = (((((long)ac1) * 4 + x3) << oss) + 2) >> 2;
-  x1 = (ac3 * b6) >> 13;
-  x2 = (b1 * (b6 * b6) >> 12) >> 16;
-  x3 = ((x1 + x2) + 2) >> 2;
-  b4 = ac4 * (unsigned long)(x3 + 32768) >> 15;
-  b7 = ((unsigned long)up - b3)*(50000 >> oss);
-  if(b7 < 0x80000000){
-    *p = (b7 * 2) / b4;
-  }
-  else{
-    *p = (b7 / b4) *2;
-  }
-  x1 = (*p >> 8);
-  x1 *= x1;
-  x1 = (x1 * 3038) >> 16;
-  x2 = (-7357 * *p) >> 16;
-  *p += (x1 + x2 + 3791) >> 4;
+  b3 = (((((long)ac1)*4 + x3)<<oss) + 2)>>2;
+
+  // Calculate B4
+  x1 = (ac3 * b6)>>13;
+  x2 = (b1 * ((b6 * b6)>>12))>>16;
+  x3 = ((x1 + x2) + 2)>>2;
+  b4 = (ac4 * (unsigned long)(x3 + 32768))>>15;
+
+  b7 = ((unsigned long)(up - b3) * (50000>>oss));
+  if (b7 < 0x80000000)
+    *p = (b7<<1)/b4;
+  else
+    *p = (b7/b4)<<1;
+
+  x1 = (*p>>8) * (*p>>8);
+  x1 = (x1 * 3038)>>16;
+  x2 = (-7357 * *p)>>16;
+  *p += (x1 + x2 + 3791)>>4;
+  
+  Serial.print("UT:");
+  Serial.print(ut);
+  Serial.print(" UP:");
+  Serial.print(up);
+  Serial.print(" T:");
+  Serial.print(*t);
+  Serial.print(" P:");
+  Serial.println(*p);
+  
+  
 }
 
 // Write to Register
