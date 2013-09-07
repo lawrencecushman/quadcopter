@@ -3,10 +3,6 @@
 //                      - github: lawrencecushman                              /
 /*============================================================================*/
 
-// TODO: Set up H
-// TODO: Set up Q
-// TODO: Set up R
-// TODO: Set up 
 
 #include "L3G4200D.h"
 #include "HMC5883L.h"
@@ -109,45 +105,44 @@ float A[N][N] = {{1,0,0, dt,0,0, 0.5*dt*dt,0,0, 0,0,0,  0,0,0 },  // x
 //float u[L];    // control outputs
 //float B[N][L]; // control output to state mapping               
 
-float A_transpose[N][N];   
+float A_transpose[N][N] = {};   
 float H_transpose[N][M];
 float I[N][N]; // NxN Identity Matrix       
 float K[N][M]; // Kalman Gain
 float z[M];    // Sensor Measurements
 
 // Preallocated Temporary variable matrices
-long gyroData[3]; //TODO:PAC
-long magData[3]; //TODO:PAC
-long accelData[3]; //TODO:PAC
-float result[N]; //TODO:PAC
-float result2[N][N]; //TODO:PAC
-float result3[N][N]; //TODO:PAC
-float result4[M][N]; //TODO:PAC
-float result5[M][M]; //TODO:PAC
-float result6[M][M]; //TODO:PAC
-float result7[N][M];   //TODO:PAC
-float result8[M]; //TODO:PAC
-float result9[M]; //TODO:PAC
-float result10[N]; //TODO:PAC
-float result11[N]; //TODO:PAC
-float result12[N][N]; //TODO:PAC
-float result13[N][N]; //TODO:PAC
-float result14[N][N]; //TODO:PAC
+long gyroData[3]; 
+long magData[3]; 
+long accelData[3]; 
+float result[N]; 
+float result2[N][N]; 
+float result3[N][N]; 
+float result4[M][N]; 
+float result5[M][M]; 
+float result6[M][M]; 
+float result7[N][M];   
+float result8[M]; 
+float result9[M]; 
+float result10[N]; 
+float result11[N]; 
+float result12[N][N]; 
+float result13[N][N]; 
+float result14[N][N]; 
 
 //=============== Main ================= 
 void setup() {
   Serial.begin(9600);
   Wire.begin();
 
-  //Matrix.Transpose((float*)A, N,N, (float*)A_transpose); // Store A_Transpose
-  //Matrix.Transpose((float*)H, M,N, (float*)H_transpose); // Store H_Transpose
- 
-  gyro.setupGyro();
-  magnetometer.setupMagnetometer();
-  accelerometer.setupAccel();
-
-  //fillIdentityMatrix();
-   
+  Matrix.Transpose((float*)A, N,N, (float*)A_transpose); // Store A_Transpose
+//  Matrix.Transpose((float*)H, M,N, (float*)H_transpose); // Store H_Transpose
+// 
+//  gyro.setupGyro();
+//  magnetometer.setupMagnetometer();
+//  accelerometer.setupAccel();
+//
+//  fillIdentityMatrix();   
 }
 
 void loop(){
@@ -161,51 +156,48 @@ void loop(){
 
   // TODO: Convert sensor readings to useful units
   
-  // Store sensor readings in z
-  //for (int i=0; i<3; i++){
-    //z[i] = gyroData[i];
-    //z[3+i] = accelData[i];
-    //z[6+i] = magData[i];
-  //}
-  
-  // ===== KALMAN FILTER ===== 
-  // Project the state ahead
-  //       x = A*x + B*u
-  //Matrix.Multiply((float*)A,(float*)x, N,N,1, (float*)result); // A*x = result
-  //Matrix.Copy((float*)result, N, 1, (float*)x);                // x = A*x
-  //
-  //
-  //Serial.print(".");  
-  //// Project the error Covariance Ahead
-  ////       P = A*P*A_transpose + Q
-  //Matrix.Multiply((float*)A,(float*)P, N,N,N, (float*)result2);                 // A*P = result2
-  //Matrix.Multiply((float*)result2,(float*)A_transpose, N,N,N, (float*)result3); // result2*A_transpose = result 3,
-  //Matrix.Add((float*)result3,(float*)Q, N,N, (float*)P);                        // P = result3 + Q
+//  // Store sensor readings in z
+//  for (int i=0; i<3; i++){
+//    z[i] = gyroData[i];
+//    z[3+i] = accelData[i];
+//    z[6+i] = magData[i];
+//  }
+//  
+//  // ===== KALMAN FILTER ===== 
+//  // Project the state ahead
+//  //       x = A*x + B*u
+//  Matrix.Multiply((float*)A,(float*)x, N,N,1, (float*)result); // A*x = result
+//  Matrix.Copy((float*)result, N, 1, (float*)x);                // x = A*x
+//  
+//  // Project the error Covariance Ahead
+//  //       P = A*P*A_transpose + Q
+//  Matrix.Multiply((float*)A,(float*)P, N,N,N, (float*)result2);                 // A*P = result2
+//  Matrix.Multiply((float*)result2,(float*)A_transpose, N,N,N, (float*)result3); // result2*A_transpose = result 3,
+//  Matrix.Add((float*)result3,(float*)Q, N,N, (float*)P);                        // P = result3 + Q
 //
-  //Serial.print(".");  
-  //// Compute the Kalman Gain
-  ////       K = P*H_transpose * (H*P*H_transpose + R)_inverse
-  //Matrix.Multiply((float*)H,(float*)P, M,N,N, (float*)result4);       // result4 = H*P
-  //Matrix.Multiply((float*)result4,(float*)H, M,N,M, (float*)result5); // result5 = result4*H_Transpose
-  //Matrix.Add((float*)result5,(float*)R, M,M, (float*)result6);        // result6 = result5 + R
-  //Matrix.Invert((float*)result6, M);                                  // result6 = result6_inverse
-  //Matrix.Multiply((float*)P,(float*)H_transpose, N,N,M, (float*)result7);  // result7 = P*H_transpose
-  //Matrix.Multiply((float*)result7,(float*)result6, N,M,M, (float*)K);   // K = result6*result7
+//  // Compute the Kalman Gain
+//  //       K = P*H_transpose * (H*P*H_transpose + R)_inverse
+//  Matrix.Multiply((float*)H,(float*)P, M,N,N, (float*)result4);       // result4 = H*P
+//  Matrix.Multiply((float*)result4,(float*)H, M,N,M, (float*)result5); // result5 = result4*H_Transpose
+//  Matrix.Add((float*)result5,(float*)R, M,M, (float*)result6);        // result6 = result5 + R
+//  Matrix.Invert((float*)result6, M);                                  // result6 = result6_inverse
+//  Matrix.Multiply((float*)P,(float*)H_transpose, N,N,M, (float*)result7);  // result7 = P*H_transpose
+//  Matrix.Multiply((float*)result7,(float*)result6, N,M,M, (float*)K);   // K = result6*result7
 //
-  //// Update Estimate with Measurement z
-  ////       x = x + K*(z - H*x)
-  //Matrix.Multiply((float*)H,(float*)x, M,N,1, (float*)result8);       // result8 = H*x
-  //Matrix.Subtract((float*)z, (float*)result8, M,1, (float*)result9);  // result9 = z - result8
-  //Matrix.Multiply((float*)K,(float*)result9, N,M,1, (float*)result10);// result10 = K*result9
-  //Matrix.Add((float*)x, (float*)result10, N,1, (float*)result11);     // result11 = x + result10
-  //Matrix.Copy((float*)result11, N, 1, (float*)x);                     // x = result11
-  //
-  //// Update the Error Covariance
-  ////       P = (I - K*H)*P
-  //Matrix.Multiply((float*)K,(float*)H, N,M,1, (float*)result12);        // result12 = K*H
-  //Matrix.Subtract((float*)I, (float*)result12, M,1, (float*)result13);  // result13 = I - result12
-  //Matrix.Multiply((float*)result13,(float*)P, N,N,N, (float*)result14); // result14 = result13*P
-  //Matrix.Copy((float*)result14, N, N, (float*)P);                       // P = result14
+//  // Update Estimate with Measurement z
+//  //       x = x + K*(z - H*x)
+//  Matrix.Multiply((float*)H,(float*)x, M,N,1, (float*)result8);       // result8 = H*x
+//  Matrix.Subtract((float*)z, (float*)result8, M,1, (float*)result9);  // result9 = z - result8
+//  Matrix.Multiply((float*)K,(float*)result9, N,M,1, (float*)result10);// result10 = K*result9
+//  Matrix.Add((float*)x, (float*)result10, N,1, (float*)result11);     // result11 = x + result10
+//  Matrix.Copy((float*)result11, N, 1, (float*)x);                     // x = result11
+//  
+//  // Update the Error Covariance
+//  //       P = (I - K*H)*P
+//  Matrix.Multiply((float*)K,(float*)H, N,M,1, (float*)result12);        // result12 = K*H
+//  Matrix.Subtract((float*)I, (float*)result12, M,1, (float*)result13);  // result13 = I - result12
+//  Matrix.Multiply((float*)result13,(float*)P, N,N,N, (float*)result14); // result14 = result13*P
+//  Matrix.Copy((float*)result14, N, N, (float*)P);                       // P = result14
   
   
   // Print Gyro Data
@@ -225,17 +217,17 @@ void loop(){
      Serial.print(accelData[i]);
      Serial.print(",");
   }
-  //Serial.print("||");
-  //// Print State
-  //for (int i=0; i<N ; i++){
-     //Serial.print(x[i]);
-     //Serial.print(",");
-  //}
+  
+//  // Print State
+//  for (int i=0; i<N ; i++){
+//     Serial.print(x[i]);
+//     Serial.print(",");
+//  }
   Serial.println(";");
 }
 
 void fillIdentityMatrix(){
-  //for(int i=0; i<N; i++){
-    //I[i][i] = 1.0; 
-  //}
+  for(int i=0; i<N; i++){
+    I[i][i] = 1.0; 
+  }
 }
