@@ -52,9 +52,12 @@
 #define INT1_TSH_ZH   0x36 // Z-Axis Interrupt threshold MSB
 #define INT1_TSH_ZL   0x37 // Z-Axis Interrupt threshold LSB
 #define INT1_DURATION 0x38 // Interrupt duration configuration
+#define X_OFF         9.08
+#define Y_OFF         2.60
+#define Z_OFF         8.76
 
 byte x_l, y_l, z_l, x_h, y_h, z_h; // LSB and MSB of 8-bit output readings
-long x,y,z;                        // 16-bit gyro output values
+float x,y,z;                        // 16-bit gyro output values
 
 
 void setup(){
@@ -94,11 +97,23 @@ void updateGyroValues(){
 //  variables.                                                                
 void updateGyroValuesWithRepeatedStart(){
   byte byteArray[6];
-  readSequentialRegisters(OUT_X_L, byteArray, 6); // 
+  readSequentialRegisters(OUT_X_L, byteArray, 6);
   
-  x = byteArray[0] | (byteArray[1] << 8); // 
-  y = byteArray[2] | (byteArray[3] << 8);
-  z = byteArray[4] | (byteArray[5] << 8); 
+  long temp_x, temp_y, temp_z;
+  
+  temp_x = byteArray[0] | (byteArray[1] << 8);
+  temp_y = byteArray[2] | (byteArray[3] << 8);
+  temp_z = byteArray[4] | (byteArray[5] << 8);
+ 
+  //Remove 0 rotation drift (just noise now)
+  x = temp_x - X_OFF;
+  y = temp_y - Y_OFF;
+  z = temp_z - Z_OFF;
+  
+  //Scale to dps
+  x *= 0.061037018;
+  y *= 0.061037018;  //2000 dps/32767 magical rotation units;
+  z *= 0.061037018;
 }
 
 
