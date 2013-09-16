@@ -21,7 +21,7 @@ long timer = 0;
 #define M 9  // DoF for the IMU (3x3-axis sensors)
 #define L 4  // Number of control outputs (4 motors)
 
-float dt = 0.01; // delta Time (seconds) //TODO: implement actual dt
+#define dt 0.01 // delta Time (seconds) //TODO: implement actual dt
 
 /*===== initialize Kalman variables/ constants =====*/
 float x[N] = {0,0,0, 0,0,0, 0,0,0, 0,0,0, 0,0,0}; // The State's initial (horrible) estimate
@@ -45,7 +45,7 @@ float P[N][N] = {{1000,0,0, 0,0,0,    0,0,0,    0,0,0,    0,0,0    }, // x
 
  // Measurement Equation - relates x to z     TODO:Set up H
  //               pos     vel     accel   angle   angle'
-float H[M][N] = {{0,0,0,  0,0,0,  0,0,0,  0,0,0,  1,0,0  }, // gyro x
+PROGMEM float H[M][N] = {{0,0,0,  0,0,0,  0,0,0,  0,0,0,  1,0,0  }, // gyro x
                  {0,0,0,  0,0,0,  0,0,0,  0,0,0,  0,1,0  }, // gyro y
                  {0,0,0,  0,0,0,  0,0,0,  0,0,0,  0,0,1  }, // gyro z                   
                  {0,0,0,  0,0,0,  0,0,0,  1,0,0,  0,0,0  }, // mag x
@@ -57,7 +57,7 @@ float H[M][N] = {{0,0,0,  0,0,0,  0,0,0,  0,0,0,  1,0,0  }, // gyro x
 
 // Process Noise Covariance TODO:Setu Up Q
 //    make this a diagonal matrix with the variance of each of the states along the diagonal
-float Q[N][N] = {{2,0,0,  0,0,0,  0,0,0,  0,0,0,  0,0,0  }, // x
+PROGMEM float Q[N][N] = {{2,0,0,  0,0,0,  0,0,0,  0,0,0,  0,0,0  }, // x
                  {0,2,0,  0,0,0,  0,0,0,  0,0,0,  0,0,0  }, // y
                  {0,0,2,  0,0,0,  0,0,0,  0,0,0,  0,0,0  }, // z                   
                  {0,0,0,  2,0,0,  0,0,0,  0,0,0,  0,0,0  }, // x_vel
@@ -75,7 +75,7 @@ float Q[N][N] = {{2,0,0,  0,0,0,  0,0,0,  0,0,0,  0,0,0  }, // x
 
 // Measurement Noise Covariance TODO:Set Up R
 //                gyro    mag   accel
-float R[M][M] = {{2,0,0, 0,0,0, 0,0,0}, // gyro x
+PROGMEM float R[M][M] = {{2,0,0, 0,0,0, 0,0,0}, // gyro x
                  {0,2,0, 0,0,0, 0,0,0}, // gyro y
                  {0,0,2, 0,0,0, 0,0,0}, // gyro z
                  {0,0,0, 2,0,0, 0,0,0}, // mag  x
@@ -86,7 +86,7 @@ float R[M][M] = {{2,0,0, 0,0,0, 0,0,0}, // gyro x
                  {0,0,0, 0,0,0, 0,0,2}};// accel z
 
 // State Equation Matrix
-float A[N][N] = {{1,0,0, dt,0,0, 0.5*dt*dt,0,0, 0,0,0,  0,0,0 },  // x
+PROGMEM float A[N][N] = {{1,0,0, dt,0,0, 0.5*dt*dt,0,0, 0,0,0,  0,0,0 },  // x
                  {0,1,0, 0,dt,0, 0,0.5*dt*dt,0, 0,0,0,  0,0,0 },  // y
                  {0,0,1, 0,0,dt, 0,0,0.5*dt*dt, 0,0,0,  0,0,0 },  // z                   
                  {0,0,0, 1,0,0,  dt,0,0,        0,0,0,  0,0,0 },  // x_vel
@@ -105,30 +105,30 @@ float A[N][N] = {{1,0,0, dt,0,0, 0.5*dt*dt,0,0, 0,0,0,  0,0,0 },  // x
 //float u[L];    // control outputs
 //float B[N][L]; // control output to state mapping               
 
-float A_transpose[N][N] = {};   
-float H_transpose[N][M];
-float I[N][N]; // NxN Identity Matrix       
-float K[N][M]; // Kalman Gain
-float z[M];    // Sensor Measurements
+float A_transpose[N][N] = {0};   
+//float H_transpose[N][M] = {0};
+//float I[N][N] = {0}; // NxN Identity Matrix       
+//float K[N][M] = {0}; // Kalman Gain
+//float z[M] = {0};    // Sensor Measurements
 
 // Preallocated Temporary variable matrices
-long gyroData[3]; 
-long magData[3]; 
-long accelData[3]; 
-float result[N]; 
-float result2[N][N]; 
-float result3[N][N]; 
-float result4[M][N]; 
-float result5[M][M]; 
-float result6[M][M]; 
-float result7[N][M];   
-float result8[M]; 
-float result9[M]; 
-float result10[N]; 
-float result11[N]; 
-float result12[N][N]; 
-float result13[N][N]; 
-float result14[N][N]; 
+long gyroData[3] = {0}; 
+long magData[3] = {0}; 
+long accelData[3] = {0}; 
+//float result[N] = {0}; 
+//float result2[N][N] = {0}; 
+//float result3[N][N] = {0}; 
+//float result4[M][N] = {0}; 
+//float result5[M][M] = {0}; 
+//float result6[M][M] = {0}; 
+//float result7[N][M] = {0};   
+//float result8[M] = {0}; 
+//float result9[M] = {0}; 
+//float result10[N] = {0}; 
+//float result11[N] = {0}; 
+//float result12[N][N] = {0}; 
+//float result13[N][N] = {0}; 
+//float result14[N][N] = {0}; 
 
 //=============== Main ================= 
 void setup() {
@@ -226,8 +226,8 @@ void loop(){
   Serial.println(";");
 }
 
-void fillIdentityMatrix(){
-  for(int i=0; i<N; i++){
-    I[i][i] = 1.0; 
-  }
-}
+//void fillIdentityMatrix(){
+//  for(int i=0; i<N; i++){
+//    I[i][i] = 1.0; 
+//  }
+//}

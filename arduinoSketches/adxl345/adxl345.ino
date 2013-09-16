@@ -66,8 +66,10 @@ void setup(){
 
 void loop() {
   updateAccelValuesWithRepeatedStart(); // set x, y and z.
-  print_CSV();                          // print values in CSV format
-  delay(50);
+  print_CSV();  // print values in CSV format
+  print_Mag();  
+  print_Ang();
+  delay(150);
 }
 
 
@@ -101,6 +103,11 @@ void updateAccelValuesWithRepeatedStart(){
   x = byteArray[0] | (byteArray[1] << 8);
   y = byteArray[2] | (byteArray[3] << 8);
   z = byteArray[4] | (byteArray[5] << 8);
+  
+  //Scale inputs
+  x /= 133;
+  y /= 135;
+  z /= 131;
 }
 
 // Read Sequential Registers
@@ -169,7 +176,18 @@ void setupAccel() {
   //            REG     bit# 76543210
   writeRegister(POWER_CTL, 0b00000000); // Ensure it has default settings
   writeRegister(POWER_CTL, 0b00000100); // Enable sleep mode
-  writeRegister(POWER_CTL, 0b00001000); // Enable measure mode
+  writeRegister(POWER_CTL, 0b00011010); // Enable measure mode
+  
+  //Set offsets
+  writeRegister(OFSX, 0b00000111);
+  writeRegister(OFSY, 0b00000101);
+  writeRegister(OFSZ, 0b00001101);
+//  writeRegister(OFSX, 0b00000000);
+//  writeRegister(OFSY, 0b00000000);
+//  writeRegister(OFSZ, 0b00000000);
+  
+  //Setup output
+  writeRegister(DATA_FORMAT, 0b00000001);
 }
 
 
@@ -181,4 +199,23 @@ void print_CSV(){
   Serial.print(y);
   Serial.print(",");
   Serial.println(z);
+}
+
+
+// Print Mag
+//  Prints magnitude of (x, y and z).
+void print_Mag(){
+  Serial.println(sqrt(x*x+y*y+z*z)/132.0);
+}
+
+// Print And
+//  Prints triple angles to acceleration vector.
+void print_Ang(){
+  float mag = sqrt(x*x+y*y+z*z);
+  
+  Serial.print(acos(x/mag)*180/3.14);
+  Serial.print(",");
+  Serial.print(acos(y/mag)*180/3.14);
+  Serial.print(",");
+  Serial.println(acos(z/mag)*180/3.14);
 }
