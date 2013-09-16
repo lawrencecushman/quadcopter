@@ -1,3 +1,6 @@
 # Git Ignore File #
 .DS_Store
 .DS_Store?
+*.ai
+*.jpg
+sketch_3d_visualization/application.macosx/*
